@@ -873,3 +873,21 @@ cpack --config CPackSourceConfig.cmake
 
 具体可阅读[Antlr4使用](doc/Antlr4.md)。
 
+## int和float混合运算的隐式类型转换
+
+本编译器支持int和float类型混合运算的隐式类型转换。当两种类型的数据进行混合运算时，遵循以下规则：
+
+1. **二元运算（如加法、减法等）**：
+   - 当两个操作数至少有一个是float类型时，将int类型的操作数隐式转换为float类型
+   - 运算结果的类型为float类型，以保持更高的精度
+
+2. **赋值操作**：
+   - 当左侧变量是float类型，右侧表达式是int类型时，将右侧表达式的结果隐式转换为float类型
+   - 当左侧变量是int类型，右侧表达式是float类型时，会发出警告并将右侧表达式的结果转换为int类型（可能损失精度）
+
+在生成的IR代码中，隐式类型转换通过以下两个指令实现：
+- `sitofp`：将int类型转换为float类型（int to float）
+- `fptosi`：将float类型转换为int类型（float to int）
+
+当执行可能导致精度损失的转换（从float到int）时，编译器会发出警告信息。
+

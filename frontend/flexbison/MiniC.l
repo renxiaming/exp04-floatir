@@ -5,6 +5,7 @@
 #include <cstdio>
 #include <cstdint>
 #include <cstring>
+#include <cstdlib>
 
 // 此文件定义了文法中终结符的类别
 #include "BisonParser.h"
@@ -58,11 +59,25 @@
                 return T_DIGIT;
             }
 
+[0-9]+\.[0-9]*([eE][-+]?[0-9]+)?|[0-9]*\.[0-9]+([eE][-+]?[0-9]+)?|[0-9]+[eE][-+]?[0-9]+ {
+                // 词法识别浮点数字面量
+                yylval.float_num.val = strtod(yytext, (char **)NULL);
+                yylval.float_num.lineno = yylineno;
+                return T_FLOAT_DIGIT;
+            }
+
 "int"       {
                 // int类型关键字 关键字的识别要在标识符识别的前边，这是因为关键字也是标识符，不过是保留的
                 yylval.type.type = BasicType::TYPE_INT;
                 yylval.type.lineno = yylineno;
                 return T_INT;
+            }
+
+"float"     {
+                // float类型关键字
+                yylval.type.type = BasicType::TYPE_FLOAT;
+                yylval.type.lineno = yylineno;
+                return T_FLOAT;
             }
 
 "return"    {

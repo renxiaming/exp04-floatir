@@ -31,6 +31,7 @@
 #include "ExitInstruction.h"
 #include "FuncCallInstruction.h"
 #include "BinaryInstruction.h"
+#include "UnaryInstruction.h"
 #include "MoveInstruction.h"
 #include "GotoInstruction.h"
 
@@ -41,6 +42,7 @@ IRGenerator::IRGenerator(ast_node * _root, Module * _module) : root(_root), modu
 {
     /* 叶子节点 */
     ast2ir_handlers[ast_operator_type::AST_OP_LEAF_LITERAL_UINT] = &IRGenerator::ir_leaf_node_uint;
+    ast2ir_handlers[ast_operator_type::AST_OP_LEAF_LITERAL_FLOAT] = &IRGenerator::ir_leaf_node_float;
     ast2ir_handlers[ast_operator_type::AST_OP_LEAF_VAR_ID] = &IRGenerator::ir_leaf_node_var_id;
     ast2ir_handlers[ast_operator_type::AST_OP_LEAF_TYPE] = &IRGenerator::ir_leaf_node_type;
 
@@ -320,10 +322,10 @@ bool IRGenerator::ir_function_call(ast_node * node)
         }
     }
 
-    // TODO 这里请追加函数调用的语义错误检查，这里只进行了函数参数的个数检查等，其它请自行追加。
+    // 检查参数个数
     if (realParams.size() != calledFunction->getParams().size()) {
         // 函数参数的个数不一致，语义错误
-        minic_log(LOG_ERROR, "第%lld行的被调用函数(%s)未定义或声明", (long long) lineno, funcName.c_str());
+        minic_log(LOG_ERROR, "第%lld行的被调用函数(%s)参数个数不匹配", (long long) lineno, funcName.c_str());
         return false;
     }
 
@@ -395,13 +397,43 @@ bool IRGenerator::ir_add(ast_node * node)
         return false;
     }
 
-    // 这里只处理整型的数据，如需支持实数，则需要针对类型进行处理
+    // 处理类型转换
+    IRInstOperator opcode;
+    Type * resultType;
 
-    BinaryInstruction * addInst = new BinaryInstruction(module->getCurrentFunction(),
-                                                        IRInstOperator::IRINST_OP_ADD_I,
-                                                        left->val,
-                                                        right->val,
-                                                        IntegerType::getTypeInt());
+    // 如果两个操作数至少有一个是浮点型，则结果类型为浮点型
+    if (left->val->getType()->isFloatType() || right->val->getType()->isFloatType()) {
+        opcode = IRInstOperator::IRINST_OP_ADD_F;
+        resultType = FloatType::getType();
+
+        // 处理隐式类型转换
+        if (!left->val->getType()->isFloatType()) {
+            // 左操作数是整型，需要转换为浮点型
+            UnaryInstruction * convInst = new UnaryInstruction(module->getCurrentFunction(),
+                                                               IRInstOperator::IRINST_OP_INT2FLOAT,
+                                                               left->val,
+                                                               FloatType::getType());
+            node->blockInsts.addInst(convInst);
+            left->val = convInst;
+        }
+
+        if (!right->val->getType()->isFloatType()) {
+            // 右操作数是整型，需要转换为浮点型
+            UnaryInstruction * convInst = new UnaryInstruction(module->getCurrentFunction(),
+                                                               IRInstOperator::IRINST_OP_INT2FLOAT,
+                                                               right->val,
+                                                               FloatType::getType());
+            node->blockInsts.addInst(convInst);
+            right->val = convInst;
+        }
+    } else {
+        // 两个操作数都是整型
+        opcode = IRInstOperator::IRINST_OP_ADD_I;
+        resultType = IntegerType::getTypeInt();
+    }
+
+    BinaryInstruction * addInst =
+        new BinaryInstruction(module->getCurrentFunction(), opcode, left->val, right->val, resultType);
 
     // 创建临时变量保存IR的值，以及线性IR指令
     node->blockInsts.addInst(left->blockInsts);
@@ -437,13 +469,43 @@ bool IRGenerator::ir_sub(ast_node * node)
         return false;
     }
 
-    // 这里只处理整型的数据，如需支持实数，则需要针对类型进行处理
+    // 处理类型转换
+    IRInstOperator opcode;
+    Type * resultType;
 
-    BinaryInstruction * subInst = new BinaryInstruction(module->getCurrentFunction(),
-                                                        IRInstOperator::IRINST_OP_SUB_I,
-                                                        left->val,
-                                                        right->val,
-                                                        IntegerType::getTypeInt());
+    // 如果两个操作数至少有一个是浮点型，则结果类型为浮点型
+    if (left->val->getType()->isFloatType() || right->val->getType()->isFloatType()) {
+        opcode = IRInstOperator::IRINST_OP_SUB_F;
+        resultType = FloatType::getType();
+
+        // 处理隐式类型转换
+        if (!left->val->getType()->isFloatType()) {
+            // 左操作数是整型，需要转换为浮点型
+            UnaryInstruction * convInst = new UnaryInstruction(module->getCurrentFunction(),
+                                                               IRInstOperator::IRINST_OP_INT2FLOAT,
+                                                               left->val,
+                                                               FloatType::getType());
+            node->blockInsts.addInst(convInst);
+            left->val = convInst;
+        }
+
+        if (!right->val->getType()->isFloatType()) {
+            // 右操作数是整型，需要转换为浮点型
+            UnaryInstruction * convInst = new UnaryInstruction(module->getCurrentFunction(),
+                                                               IRInstOperator::IRINST_OP_INT2FLOAT,
+                                                               right->val,
+                                                               FloatType::getType());
+            node->blockInsts.addInst(convInst);
+            right->val = convInst;
+        }
+    } else {
+        // 两个操作数都是整型
+        opcode = IRInstOperator::IRINST_OP_SUB_I;
+        resultType = IntegerType::getTypeInt();
+    }
+
+    BinaryInstruction * subInst =
+        new BinaryInstruction(module->getCurrentFunction(), opcode, left->val, right->val, resultType);
 
     // 创建临时变量保存IR的值，以及线性IR指令
     node->blockInsts.addInst(left->blockInsts);
@@ -480,16 +542,33 @@ bool IRGenerator::ir_assign(ast_node * node)
         return false;
     }
 
-    // 这里只处理整型的数据，如需支持实数，则需要针对类型进行处理
+    // 处理类型转换
+    Value * rightVal = right->val;
 
-    MoveInstruction * movInst = new MoveInstruction(module->getCurrentFunction(), left->val, right->val);
+    // 如果左侧是浮点型，右侧是整型，则需要将右侧转换为浮点型
+    if (left->val->getType()->isFloatType() && right->val->getType()->isIntegerType()) {
+        UnaryInstruction * convInst = new UnaryInstruction(module->getCurrentFunction(),
+                                                           IRInstOperator::IRINST_OP_INT2FLOAT,
+                                                           right->val,
+                                                           FloatType::getType());
+        node->blockInsts.addInst(convInst);
+        rightVal = convInst;
+    }
+    // 如果左侧是整型，右侧是浮点型，这是不允许的
+    else if (left->val->getType()->isIntegerType() && right->val->getType()->isFloatType()) {
+        // 错误：float类型不能隐式转换为int类型
+        minic_log(LOG_ERROR, "第%lld行: float类型不能隐式转换为int类型", (long long) node->line_no);
+        return false;
+    }
+
+    MoveInstruction * movInst = new MoveInstruction(module->getCurrentFunction(), left->val, rightVal);
 
     // 创建临时变量保存IR的值，以及线性IR指令
     node->blockInsts.addInst(right->blockInsts);
     node->blockInsts.addInst(left->blockInsts);
     node->blockInsts.addInst(movInst);
 
-    // 这里假定赋值的类型是一致的
+    // 赋值结果是左侧变量的类型
     node->val = movInst;
 
     return true;
@@ -516,19 +595,21 @@ bool IRGenerator::ir_return(ast_node * node)
         }
     }
 
-    // 这里只处理整型的数据，如需支持实数，则需要针对类型进行处理
+    // 处理函数返回值类型
     Function * currentFunc = module->getCurrentFunction();
 
     // 返回值存在时则移动指令到node中
     if (right) {
-
         // 创建临时变量保存IR的值，以及线性IR指令
         node->blockInsts.addInst(right->blockInsts);
 
-        // 返回值赋值到函数返回值变量上，然后跳转到函数的尾部
-        node->blockInsts.addInst(new MoveInstruction(currentFunc, currentFunc->getReturnValue(), right->val));
+        Value * rightVal = right->val;
+        Value * returnValue = currentFunc->getReturnValue();
 
-        node->val = right->val;
+        // 返回值赋值到函数返回值变量上，然后跳转到函数的尾部
+        node->blockInsts.addInst(new MoveInstruction(currentFunc, returnValue, rightVal));
+
+        node->val = rightVal;
     } else {
         // 没有返回值
         node->val = nullptr;
@@ -576,6 +657,21 @@ bool IRGenerator::ir_leaf_node_uint(ast_node * node)
 
     // 新建一个整数常量Value
     val = module->newConstInt((int32_t) node->integer_val);
+
+    node->val = val;
+
+    return true;
+}
+
+/// @brief float数字面量叶子节点翻译成线性中间IR
+/// @param node AST节点
+/// @return 翻译是否成功，true：成功，false：失败
+bool IRGenerator::ir_leaf_node_float(ast_node * node)
+{
+    ConstFloat * val;
+
+    // 新建一个浮点数常量Value
+    val = module->newConstFloat(node->float_val);
 
     node->val = val;
 

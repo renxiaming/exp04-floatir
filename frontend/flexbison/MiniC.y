@@ -12,6 +12,7 @@
 #include "AST.h"
 
 #include "IntegerType.h"
+#include "FloatType.h"
 
 // LR分析失败时所调用函数的原型声明
 void yyerror(char * msg);
@@ -38,8 +39,10 @@ void yyerror(char * msg);
 // %type开始的符号称之为非终结符，需要通过文法产生式来定义
 // %token或%type之后的<>括住的内容成为文法符号的属性，定义在前面的%union中的成员名字。
 %token <integer_num> T_DIGIT
+%token <float_num> T_FLOAT_DIGIT
 %token <var_id> T_ID
 %token <type> T_INT
+%token <type> T_FLOAT
 
 // 关键或保留字 一词一类 不需要赋予语义属性
 %token T_RETURN
@@ -213,6 +216,9 @@ VarDef : T_ID {
 BasicType: T_INT {
 		$$ = $1;
 	}
+	| T_FLOAT {
+		$$ = $1;
+	}
 	;
 
 // 语句文法：statement:T_RETURN expr T_SEMICOLON | lVal T_ASSIGN expr T_SEMICOLON
@@ -345,6 +351,12 @@ PrimaryExp :  T_L_PAREN Expr T_R_PAREN {
         	// 无符号整型字面量
 
 		// 创建一个无符号整型的终结符节点
+		$$ = ast_node::New($1);
+	}
+	| T_FLOAT_DIGIT {
+		// 无符号浮点型字面量
+
+		// 创建一个无符号浮点型的终结符节点
 		$$ = ast_node::New($1);
 	}
 	| LVal  {

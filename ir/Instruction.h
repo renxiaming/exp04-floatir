@@ -37,8 +37,32 @@ enum class IRInstOperator : std::int8_t {
     /// @brief 整数的加法指令，二元运算
     IRINST_OP_ADD_I,
 
+    /// @brief 浮点数的加法指令，二元运算
+    IRINST_OP_ADD_F,
+
     /// @brief 整数的减法指令，二元运算
     IRINST_OP_SUB_I,
+
+    /// @brief 浮点数的减法指令，二元运算
+    IRINST_OP_SUB_F,
+
+    /// @brief 整数的乘法指令，二元运算
+    IRINST_OP_MUL_I,
+
+    /// @brief 浮点数的乘法指令，二元运算
+    IRINST_OP_MUL_F,
+
+    /// @brief 整数的除法指令，二元运算
+    IRINST_OP_DIV_I,
+
+    /// @brief 浮点数的除法指令，二元运算
+    IRINST_OP_DIV_F,
+
+    /// @brief 整数转为浮点数的指令，一元运算
+    IRINST_OP_INT2FLOAT,
+
+    /// @brief 浮点数转为整数的指令，一元运算
+    IRINST_OP_FLOAT2INT,
 
     /// @brief 赋值指令，一元运算
     IRINST_OP_ASSIGN,

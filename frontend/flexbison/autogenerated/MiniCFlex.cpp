@@ -374,8 +374,8 @@ static void yynoreturn yy_fatal_error ( const char* msg  );
 	(yy_hold_char) = *yy_cp; \
 	*yy_cp = '\0'; \
 	(yy_c_buf_p) = yy_cp;
-#define YY_NUM_RULES 17
-#define YY_END_OF_BUFFER 18
+#define YY_NUM_RULES 19
+#define YY_END_OF_BUFFER 20
 /* This struct is not used in this scanner,
    but its presence is necessary. */
 struct yy_trans_info
@@ -383,12 +383,14 @@ struct yy_trans_info
 	flex_int32_t yy_verify;
 	flex_int32_t yy_nxt;
 	};
-static const flex_int16_t yy_accept[35] =
+static const flex_int16_t yy_accept[57] =
     {   0,
-        0,    0,   18,   16,   14,   15,   15,    1,    2,    8,
-        6,    9,   10,   10,    5,    7,   13,   13,   13,    3,
-        4,   14,   15,   10,   13,   13,   13,   13,   11,   13,
-       13,   13,   12,    0
+        0,    0,   20,   18,   16,   17,   17,    1,    2,    8,
+        6,    9,   18,   10,   10,    5,    7,   15,   15,   15,
+       15,    3,    4,   16,   17,   11,   11,    0,    0,   10,
+       15,   15,   15,   15,   15,    0,   11,    0,    0,   11,
+       15,   12,   15,    0,   11,    0,    0,   11,   15,   15,
+        0,   11,   13,   15,   14,    0
     } ;
 
 static const YY_CHAR yy_ec[256] =
@@ -397,16 +399,16 @@ static const YY_CHAR yy_ec[256] =
         1,    1,    4,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    2,    1,    1,    1,    1,    1,    1,    1,    5,
-        6,    1,    7,    8,    9,    1,    1,   10,   11,   11,
-       11,   11,   11,   11,   11,   11,   11,    1,   12,    1,
-       13,    1,    1,    1,   14,   14,   14,   14,   14,   14,
-       14,   14,   14,   14,   14,   14,   14,   14,   14,   14,
-       14,   14,   14,   14,   14,   14,   14,   14,   14,   14,
-        1,    1,    1,    1,   14,    1,   14,   14,   14,   14,
+        6,    1,    7,    8,    9,   10,    1,   11,   12,   12,
+       12,   12,   12,   12,   12,   12,   12,    1,   13,    1,
+       14,    1,    1,    1,   15,   15,   15,   15,   16,   15,
+       15,   15,   15,   15,   15,   15,   15,   15,   15,   15,
+       15,   15,   15,   15,   15,   15,   15,   15,   15,   15,
+        1,    1,    1,    1,   15,    1,   17,   15,   15,   15,
 
-       15,   14,   14,   14,   16,   14,   14,   14,   14,   17,
-       14,   14,   14,   18,   14,   19,   20,   14,   14,   14,
-       14,   14,   21,    1,   22,    1,    1,    1,    1,    1,
+       18,   19,   15,   15,   20,   15,   15,   21,   15,   22,
+       23,   15,   15,   24,   15,   25,   26,   15,   15,   15,
+       15,   15,   27,    1,   28,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
@@ -423,57 +425,78 @@ static const YY_CHAR yy_ec[256] =
         1,    1,    1,    1,    1
     } ;
 
-static const YY_CHAR yy_meta[23] =
+static const YY_CHAR yy_meta[29] =
     {   0,
-        1,    1,    1,    1,    1,    1,    1,    1,    1,    2,
-        2,    1,    1,    2,    2,    2,    2,    2,    2,    2,
-        1,    1
+        1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
+        2,    2,    1,    1,    2,    2,    2,    2,    2,    2,
+        2,    2,    2,    2,    2,    2,    1,    1
     } ;
 
-static const flex_int16_t yy_base[37] =
+static const flex_int16_t yy_base[59] =
     {   0,
-        0,    0,   55,   56,   52,   20,   22,   56,   56,   56,
-       56,   56,   56,   17,   56,   56,   19,   21,   18,   56,
-       56,   51,   33,   29,    0,   35,   24,   32,   31,   25,
-       28,   32,   31,   56,   40,   32
+        0,    0,  121,  122,  118,   26,   28,  122,  122,  122,
+      122,  122,   22,   25,   27,  122,  122,   33,   35,   27,
+       32,  122,  122,  117,   48,   43,   46,    0,   56,    0,
+        0,   97,   19,   45,   48,   65,   67,   75,   69,   77,
+       54,   88,   69,   80,   82,   89,   91,   93,   85,   87,
+      101,  103,   86,   95,   78,  122,   95,   58
     } ;
 
-static const flex_int16_t yy_def[37] =
+static const flex_int16_t yy_def[59] =
     {   0,
-       34,    1,   34,   34,   34,   34,   34,   34,   34,   34,
-       34,   34,   34,   34,   34,   34,   35,   35,   18,   34,
-       34,   34,   34,   34,   36,   18,   18,   27,   27,   27,
-       27,   18,   18,    0,   34,   34
+       56,    1,   56,   56,   56,   56,   56,   56,   56,   56,
+       56,   56,   56,   56,   14,   56,   56,   57,   57,   19,
+       19,   56,   56,   56,   56,   56,   56,   14,   56,   15,
+       58,   19,   19,   19,   19,   56,   56,   56,   56,   56,
+       19,   19,   19,   56,   56,   56,   56,   56,   19,   19,
+       56,   56,   19,   19,   19,    0,   56,   56
     } ;
 
-static const flex_int16_t yy_nxt[79] =
+static const flex_int16_t yy_nxt[151] =
     {   0,
         4,    5,    6,    7,    8,    9,   10,   11,   12,   13,
-       14,   15,   16,   17,   17,   18,   17,   19,   17,   17,
-       20,   21,   23,   23,   23,   23,   24,   24,   25,   25,
-       25,   25,   28,   25,   26,   23,   23,   27,   24,   24,
-       26,   26,   29,   26,   31,   32,   26,   26,   33,   26,
-       30,   26,   22,   22,   34,    3,   34,   34,   34,   34,
-       34,   34,   34,   34,   34,   34,   34,   34,   34,   34,
-       34,   34,   34,   34,   34,   34,   34,   34
+       14,   15,   16,   17,   18,   18,   18,   18,   19,   20,
+       18,   18,   18,   21,   18,   18,   22,   23,   25,   25,
+       25,   25,   26,   26,   27,   28,   28,   30,   30,   32,
+       29,   41,   29,   31,   31,   31,   31,   32,   34,   35,
+       25,   25,   32,   26,   26,   33,   37,   37,   36,   31,
+       36,   38,   39,   38,   39,   32,   40,   40,   32,   42,
+       49,   44,   43,   44,   32,   45,   45,   37,   37,   40,
+       40,   47,   46,   47,   46,   48,   48,   40,   40,   32,
+       45,   45,   45,   45,   50,   51,   32,   51,   32,   52,
+
+       52,   48,   48,   48,   48,   32,   32,   32,   32,   53,
+       54,   52,   52,   52,   52,   32,   55,   32,   24,   24,
+       56,    3,   56,   56,   56,   56,   56,   56,   56,   56,
+       56,   56,   56,   56,   56,   56,   56,   56,   56,   56,
+       56,   56,   56,   56,   56,   56,   56,   56,   56,   56
     } ;
 
-static const flex_int16_t yy_chk[79] =
+static const flex_int16_t yy_chk[151] =
     {   0,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
         1,    1,    1,    1,    1,    1,    1,    1,    1,    1,
-        1,    1,    6,    6,    7,    7,   14,   14,   17,   17,
-       18,   18,   19,   36,   19,   23,   23,   18,   24,   24,
-       27,   35,   27,   30,   30,   31,   31,   33,   32,   29,
-       28,   26,   22,    5,    3,   34,   34,   34,   34,   34,
-       34,   34,   34,   34,   34,   34,   34,   34,   34,   34,
-       34,   34,   34,   34,   34,   34,   34,   34
+        1,    1,    1,    1,    1,    1,    1,    1,    6,    6,
+        7,    7,   13,   13,   14,   14,   14,   15,   15,   33,
+       14,   33,   14,   18,   18,   19,   19,   20,   20,   21,
+       25,   25,   21,   26,   26,   19,   27,   27,   26,   58,
+       26,   27,   29,   27,   29,   34,   29,   29,   35,   34,
+       41,   36,   35,   36,   41,   36,   36,   37,   37,   39,
+       39,   38,   37,   38,   37,   38,   38,   40,   40,   43,
+       44,   44,   45,   45,   43,   46,   57,   46,   55,   46,
+
+       46,   47,   47,   48,   48,   49,   53,   50,   42,   49,
+       50,   51,   51,   52,   52,   54,   54,   32,   24,    5,
+        3,   56,   56,   56,   56,   56,   56,   56,   56,   56,
+       56,   56,   56,   56,   56,   56,   56,   56,   56,   56,
+       56,   56,   56,   56,   56,   56,   56,   56,   56,   56
     } ;
 
 /* Table of booleans, true if rule could match eol. */
-static const flex_int32_t yy_rule_can_match_eol[18] =
+static const flex_int32_t yy_rule_can_match_eol[20] =
     {   0,
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0,     };
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 
+        };
 
 static yy_state_type yy_last_accepting_state;
 static char *yy_last_accepting_cpos;
@@ -497,12 +520,13 @@ char *yytext;
 #include <cstdio>
 #include <cstdint>
 #include <cstring>
+#include <cstdlib>
 
 // 此文件定义了文法中终结符的类别
 #include "BisonParser.h"
 
 // 对于整数或浮点数，词法识别无符号数，对于负数，识别为求负运算符与无符号数，请注意。
-#line 506 "/home/code/exp04-minic-expr/frontend/flexbison/autogenerated/MiniCFlex.cpp"
+#line 530 "/home/code/exp04-minic-expr/frontend/flexbison/autogenerated/MiniCFlex.cpp"
 /* 使它不要添加默认的规则,这样输入无法被给定的规则完全匹配时，词法分析器可以报告一个错误 */
 /* 产生yywrap函数 */
 /* flex 生成的扫描器用全局变量yylineno 维护着输入文件的当前行编号 */
@@ -513,7 +537,7 @@ char *yytext;
 /* 不进行命令行交互，只能分析文件 */
 /* 辅助定义式或者宏，后面使用时带上大括号 */
 /* 正规式定义 */
-#line 517 "/home/code/exp04-minic-expr/frontend/flexbison/autogenerated/MiniCFlex.cpp"
+#line 541 "/home/code/exp04-minic-expr/frontend/flexbison/autogenerated/MiniCFlex.cpp"
 
 #define INITIAL 0
 
@@ -730,10 +754,10 @@ YY_DECL
 		}
 
 	{
-#line 39 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
+#line 40 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
 
 
-#line 737 "/home/code/exp04-minic-expr/frontend/flexbison/autogenerated/MiniCFlex.cpp"
+#line 761 "/home/code/exp04-minic-expr/frontend/flexbison/autogenerated/MiniCFlex.cpp"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -760,13 +784,13 @@ yy_match:
 			while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 				{
 				yy_current_state = (int) yy_def[yy_current_state];
-				if ( yy_current_state >= 35 )
+				if ( yy_current_state >= 57 )
 					yy_c = yy_meta[yy_c];
 				}
 			yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
 			++yy_cp;
 			}
-		while ( yy_current_state != 34 );
+		while ( yy_current_state != 56 );
 		yy_cp = (yy_last_accepting_cpos);
 		yy_current_state = (yy_last_accepting_state);
 
@@ -798,52 +822,52 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 41 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
+#line 42 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
 { return T_L_PAREN; }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 42 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
+#line 43 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
 { return T_R_PAREN; }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 43 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
+#line 44 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
 { return T_L_BRACE; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 44 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
+#line 45 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
 { return T_R_BRACE; }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 46 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
+#line 47 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
 { return T_SEMICOLON; }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 47 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
+#line 48 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
 { return T_COMMA; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 49 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
+#line 50 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
 { return T_ASSIGN; }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 50 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
+#line 51 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
 { return T_ADD; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 51 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
+#line 52 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
 { return T_SUB; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 54 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
+#line 55 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
 {
                 // 词法识别无符号整数，注意对于负数，则需要识别为负号和无符号数两个Token
                 yylval.integer_num.val = (uint32_t)strtol(yytext, (char **)NULL, 10);
@@ -853,7 +877,17 @@ YY_RULE_SETUP
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 61 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
+#line 62 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
+{
+                // 词法识别浮点数字面量
+                yylval.float_num.val = strtod(yytext, (char **)NULL);
+                yylval.float_num.lineno = yylineno;
+                return T_FLOAT_DIGIT;
+            }
+	YY_BREAK
+case 12:
+YY_RULE_SETUP
+#line 69 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
 {
                 // int类型关键字 关键字的识别要在标识符识别的前边，这是因为关键字也是标识符，不过是保留的
                 yylval.type.type = BasicType::TYPE_INT;
@@ -861,17 +895,27 @@ YY_RULE_SETUP
                 return T_INT;
             }
 	YY_BREAK
-case 12:
+case 13:
 YY_RULE_SETUP
-#line 68 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
+#line 76 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
+{
+                // float类型关键字
+                yylval.type.type = BasicType::TYPE_FLOAT;
+                yylval.type.lineno = yylineno;
+                return T_FLOAT;
+            }
+	YY_BREAK
+case 14:
+YY_RULE_SETUP
+#line 83 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
 {
                 // return关键字 关键字的识别要在标识符识别的前边，，这是因为关键字也是标识符，不过是保留的
                 return T_RETURN;
             }
 	YY_BREAK
-case 13:
+case 15:
 YY_RULE_SETUP
-#line 73 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
+#line 88 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
 {
                 // strdup 分配的空间需要在使用完毕后使用free手动释放，否则会造成内存泄漏
                 yylval.var_id.id = strdup(yytext);
@@ -879,39 +923,39 @@ YY_RULE_SETUP
                 return T_ID;
             }
 	YY_BREAK
-case 14:
+case 16:
 YY_RULE_SETUP
-#line 81 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
+#line 96 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
 {
                 /* \040代表8进制的32的识别，也就是空格字符 */
                 // 空白符号忽略
                 ;
             }
 	YY_BREAK
-case 15:
-/* rule 15 can match eol */
+case 17:
+/* rule 17 can match eol */
 YY_RULE_SETUP
-#line 87 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
+#line 102 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
 {
                 // 空白行忽略
                 ;
             }
 	YY_BREAK
-case 16:
+case 18:
 YY_RULE_SETUP
-#line 92 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
+#line 107 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
 {
                 printf("Line %d: Invalid char %s\n", yylineno, yytext);
                 // 词法识别错误
                 return 257;
             }
 	YY_BREAK
-case 17:
+case 19:
 YY_RULE_SETUP
-#line 97 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
+#line 112 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
 YY_FATAL_ERROR( "flex scanner jammed" );
 	YY_BREAK
-#line 915 "/home/code/exp04-minic-expr/frontend/flexbison/autogenerated/MiniCFlex.cpp"
+#line 959 "/home/code/exp04-minic-expr/frontend/flexbison/autogenerated/MiniCFlex.cpp"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1209,7 +1253,7 @@ static int yy_get_next_buffer (void)
 		while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 			{
 			yy_current_state = (int) yy_def[yy_current_state];
-			if ( yy_current_state >= 35 )
+			if ( yy_current_state >= 57 )
 				yy_c = yy_meta[yy_c];
 			}
 		yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
@@ -1237,11 +1281,11 @@ static int yy_get_next_buffer (void)
 	while ( yy_chk[yy_base[yy_current_state] + yy_c] != yy_current_state )
 		{
 		yy_current_state = (int) yy_def[yy_current_state];
-		if ( yy_current_state >= 35 )
+		if ( yy_current_state >= 57 )
 			yy_c = yy_meta[yy_c];
 		}
 	yy_current_state = yy_nxt[yy_base[yy_current_state] + yy_c];
-	yy_is_jam = (yy_current_state == 34);
+	yy_is_jam = (yy_current_state == 56);
 
 		return yy_is_jam ? 0 : yy_current_state;
 }
@@ -1929,6 +1973,6 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 97 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
+#line 112 "/home/code/exp04-minic-expr/frontend/flexbison/MiniC.l"
 
 

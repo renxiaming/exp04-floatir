@@ -158,6 +158,24 @@ ConstInt * Module::newConstInt(int32_t intVal)
     return val;
 }
 
+/// @brief 新建一个浮点数值的Value，并加入到符号表，用于后续释放空间
+/// @param floatVal 浮点数值
+/// @return 常量Value
+ConstFloat * Module::newConstFloat(float floatVal)
+{
+    // 查找浮点数
+    ConstFloat * val = findConstFloat(floatVal);
+    if (!val) {
+        // 不存在，则创建浮点数常量Value
+        val = new ConstFloat(floatVal);
+
+        // 插入到常量表中
+        constFloatMap.emplace(floatVal, val);
+    }
+
+    return val;
+}
+
 /// @brief 根据整数值获取当前符号
 /// \param name 变量名
 /// \return 变量对应的值
@@ -167,6 +185,22 @@ ConstInt * Module::findConstInt(int32_t val)
 
     auto pIter = constIntMap.find(val);
     if (pIter != constIntMap.end()) {
+        // 查找到
+        temp = pIter->second;
+    }
+
+    return temp;
+}
+
+/// @brief 根据浮点数值获取当前符号
+/// \param val 浮点数值
+/// \return 变量对应的值
+ConstFloat * Module::findConstFloat(float val)
+{
+    ConstFloat * temp = nullptr;
+
+    auto pIter = constFloatMap.find(val);
+    if (pIter != constFloatMap.end()) {
         // 查找到
         temp = pIter->second;
     }
