@@ -2,8 +2,8 @@
 /// @file Instruction.h
 /// @brief IR指令头文件
 /// @author zenglj (zenglj@live.com)
-/// @version 1.0
-/// @date 2024-11-21
+/// @version 1.1
+/// @date 2024-11-24
 ///
 /// @copyright Copyright (c) 2024
 ///
@@ -11,6 +11,7 @@
 /// <table>
 /// <tr><th>Date       <th>Version <th>Author  <th>Description
 /// <tr><td>2024-11-21 <td>1.0     <td>zenglj  <td>新做
+/// <tr><td>2024-11-24 <td>1.1     <td>zenglj  <td>增加数组支持
 /// </table>
 ///
 #pragma once
@@ -72,6 +73,9 @@ enum class IRInstOperator : std::int8_t {
 
     /// @brief 实参ARG指令，单目运算
     IRINST_OP_ARG,
+
+    /// @brief 数组元素访问，GetElementPtr指令，双目运算
+    IRINST_OP_GETELEMENTPTR,
 
     /* 后续可追加其他的IR指令 */
 

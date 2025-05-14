@@ -139,38 +139,43 @@ static void realParamList(ast_node * realParamsNode)
 ///
 static ast_node * idTail(var_id_attr & id)
 {
-    // 标识符节点
-    ast_node * node = ast_node::New(id);
+    ast_node * node = nullptr;
 
-    // 对于字符型字面量的字符串空间需要释放，因词法用到了strdup进行了字符串空间的分配
-    free(id.id);
-    id.id = nullptr;
+    if (F(T_L_PAREN)) {
 
-    if (match(T_L_PAREN)) {
+        // 以左括号开头，说明是函数调用
 
-        // 函数调用，idTail: T_L_PAREN realParamList? T_R_PAREN
+        // 创建函数ID节点
+        ast_node * id_node = ast_node::New(id);
 
+        // 创建函数实参列表节点
         ast_node * realParamsNode = create_contain_node(ast_operator_type::AST_OP_FUNC_REAL_PARAMS);
 
-        if (match(T_R_PAREN)) {
-
-            // 被调用函数没有实参，返回一个空的实参清单节点
-            return realParamsNode;
-        }
-
-        // 识别实参列表
+        // 函数参数的识别
         realParamList(realParamsNode);
 
-        if (!match(T_R_PAREN)) {
-            semerror("函数调用缺少右括号");
+        // 创建函数调用节点
+        node = create_contain_node(ast_operator_type::AST_OP_FUNC_CALL, id_node, realParamsNode);
+    } else if (F(T_L_BRACKET)) {
+        // 数组访问的语法识别
+        advance(); // 跳过左方括号
+
+        // 创建数组标识符节点
+        ast_node * id_node = ast_node::New(id);
+
+        // 解析索引表达式
+        ast_node * index_node = expr();
+
+        if (!match(T_R_BRACKET)) {
+            semerror("数组访问缺少右方括号");
         }
 
-        // 创建函数调用节点
-        node = create_func_call(node, realParamsNode);
+        // 创建数组访问节点
+        node = create_array_subscript(id_node, index_node);
     } else {
-        // 变量ID，idTail -> ε
 
-        // 前面已经创建，可直接使用，无动作
+        // 简单变量，不是函数调用也不是数组访问
+        node = ast_node::New(id);
     }
 
     return node;
@@ -458,38 +463,104 @@ static void varDeclList(ast_node * vardeclstmt_node)
 
 ///
 /// @brief 局部变量的识别，其文法为：
-/// varDecl : T_INT T_ID varDeclList
+/// varDecl : (T_INT | T_FLOAT) T_ID (T_L_BRACKET T_DIGIT T_R_BRACKET)? varDeclList
 ///
 /// @return ast_node* 局部变量声明节点
 ///
 static ast_node * varDecl()
 {
-    if (F(T_INT)) {
+    BasicType basicType = BasicType::TYPE_NONE;
 
-        // 这里必须复制，而不能引用，因为rd_lval为全局，下一个记号识别后要被覆盖
-        type_attr type = rd_lval.type;
+    if (F(T_INT)) {
+        basicType = BasicType::TYPE_INT;
 
         // 跳过int类型的记号，指向下一个Token
         advance();
+    } else if (F(T_FLOAT)) {
+        basicType = BasicType::TYPE_FLOAT;
 
-        // 检测是否是标识符
-        if (F(T_ID)) {
+        // 跳过float类型的记号，指向下一个Token
+        advance();
+    } else {
+        return nullptr;
+    }
 
-            // 创建变量声明语句，并加入第一个变量
-            ast_node * stmt_node = create_var_decl_stmt_node(type, rd_lval.var_id);
+    // 检测是否是标识符
+    if (F(T_ID)) {
+        // 保存ID属性，因为之后会被覆盖
+        var_id_attr id = rd_lval.var_id;
 
-            // 跳过标识符记号，指向下一个Token
+        // 创建变量声明语句节点
+        ast_node * stmt_node = create_contain_node(ast_operator_type::AST_OP_DECL_STMT);
+
+        // 跳过ID，指向下一个Token
+        advance();
+
+        // 检查是否是数组声明
+        if (F(T_L_BRACKET)) {
+            // 跳过左括号，指向下一个Token
             advance();
 
-            varDeclList(stmt_node);
+            // 检测是否是数字（数组大小）
+            if (F(T_DIGIT)) {
+                // 保存数组大小
+                uint32_t arraySize = rd_lval.integer_num.val;
 
-            return stmt_node;
+                // 跳过数字，指向下一个Token
+                advance();
 
+                // 检测是否是右括号
+                if (!match(T_R_BRACKET)) {
+                    return nullptr;
+                }
+
+                // 创建数组类型节点
+                type_attr typeAttr;
+                typeAttr.type = basicType;
+                typeAttr.lineno = id.lineno;
+
+                ast_node * type_node = create_type_node(typeAttr);
+
+                // 创建标识符节点
+                ast_node * id_node = ast_node::New(id);
+
+                // 创建数组大小节点
+                digit_int_attr size_attr;
+                size_attr.val = arraySize;
+                size_attr.lineno = id.lineno;
+                ast_node * size_node = create_digit_int_node(size_attr);
+
+                // 创建数组声明节点
+                ast_node * array_decl_node = create_array_decl(type_node, id_node, size_node);
+
+                // 添加到声明语句节点
+                stmt_node->insert_son_node(array_decl_node);
+            } else {
+                return nullptr;
+            }
         } else {
-            semerror("类型后要求的记号为标识符");
-            // 这里忽略继续检查下一个记号，为便于一次可检查出多个错误
-            // 当然可以直接退出循环，一旦有错就不再检查语法错误。
+            // 普通变量声明
+
+            // 创建变量声明子节点
+            type_attr typeAttr;
+            typeAttr.type = basicType;
+            typeAttr.lineno = id.lineno;
+
+            ast_node * decl_node = create_var_decl_stmt_node(typeAttr, id);
+
+            // 添加到声明语句节点
+            stmt_node->insert_son_node(decl_node);
         }
+
+        // 变量声明列表处理
+        varDeclList(stmt_node);
+
+        // 检测语句结尾的分号
+        if (!match(T_SEMICOLON)) {
+            return nullptr;
+        }
+
+        return stmt_node;
     }
 
     return nullptr;

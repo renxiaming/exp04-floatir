@@ -38,7 +38,10 @@ void InterCode::addInst(InterCode & block)
 /// @param inst IR指令
 void InterCode::addInst(Instruction * inst)
 {
-    code.push_back(inst);
+    // 有值，则插入指令列表尾部
+    if (inst) {
+        code.push_back(inst);
+    }
 }
 
 /// @brief 获取指令序列

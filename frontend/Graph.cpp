@@ -81,6 +81,12 @@ string getNodeName(ast_node * astnode)
         case ast_operator_type::AST_OP_FUNC_REAL_PARAMS:
             nodeName = "real-params";
             break;
+        case ast_operator_type::AST_OP_ARRAY_DECL:
+            nodeName = "array-decl";
+            break;
+        case ast_operator_type::AST_OP_ARRAY_SUBSCRIPT:
+            nodeName = "array-subscript";
+            break;
             // TODO 这里追加其它类型的结点，返回对应结点的字符串
 
         default:

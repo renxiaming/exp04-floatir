@@ -9,5 +9,6 @@ int main()
     a = 2;
     b = a + 1;
     f = a + e;
+    putint(e);
     return 1;
 }

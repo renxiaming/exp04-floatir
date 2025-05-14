@@ -43,6 +43,8 @@
 ")"         { return T_R_PAREN; }
 "{"         { return T_L_BRACE; }
 "}"         { return T_R_BRACE; }
+"["         { return T_L_BRACKET; }
+"]"         { return T_R_BRACKET; }
 
 ";"         { return T_SEMICOLON; }
 ","         { return T_COMMA; }

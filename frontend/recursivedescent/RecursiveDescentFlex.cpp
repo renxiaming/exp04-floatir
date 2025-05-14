@@ -2,8 +2,8 @@
 /// @file RecursiveDescentFlex.cpp
 /// @brief 词法分析的手动实现源文件
 /// @author zenglj (zenglj@live.com)
-/// @version 1.1
-/// @date 2024-11-23
+/// @version 1.2
+/// @date 2024-11-24
 ///
 /// @copyright Copyright (c) 2024
 ///
@@ -12,6 +12,7 @@
 /// <tr><th>Date       <th>Version <th>Author  <th>Description
 /// <tr><td>2024-11-21 <td>1.0     <td>zenglj  <td>新做
 /// <tr><td>2024-11-23 <td>1.1     <td>zenglj  <td>表达式版增强
+/// <tr><td>2024-11-24 <td>1.2     <td>zenglj  <td>增加数组支持
 /// </table>
 ///
 #include <cctype>
@@ -40,6 +41,7 @@ struct KeywordToken {
 /// @brief  关键字与Token对应表
 static KeywordToken allKeywords[] = {
     {"int", RDTokenType::T_INT},
+    {"float", RDTokenType::T_FLOAT},
     {"return", RDTokenType::T_RETURN},
 };
 
@@ -133,6 +135,16 @@ int rd_flex()
         tokenKind = RDTokenType::T_R_BRACE;
         // 存储字符}
         tokenValue = "}";
+    } else if (c == '[') {
+        // 识别字符[
+        tokenKind = RDTokenType::T_L_BRACKET;
+        // 存储字符[
+        tokenValue = "[";
+    } else if (c == ']') {
+        // 识别字符]
+        tokenKind = RDTokenType::T_R_BRACKET;
+        // 存储字符]
+        tokenValue = "]";
     } else if (c == ';') {
         // 识别字符;
         tokenKind = RDTokenType::T_SEMICOLON;
@@ -141,20 +153,20 @@ int rd_flex()
     } else if (c == '+') {
         // 识别字符+
         tokenKind = RDTokenType::T_ADD;
-		// 存储字符+
+        // 存储字符+
         tokenValue = "+";
     } else if (c == '-') {
         // 识别字符-
         tokenKind = RDTokenType::T_SUB;
-		// 存储字符-
+        // 存储字符-
         tokenValue = "-";
     } else if (c == '=') {
         // 识别字符=
         tokenKind = RDTokenType::T_ASSIGN;
-    }  else if (c == ',') {
+    } else if (c == ',') {
         // 识别字符;
         tokenKind = RDTokenType::T_COMMA;
-		// 存储字符,
+        // 存储字符,
         tokenValue = ",";
     } else if (isLetterUnderLine(c)) {
         // 识别标识符，包含关键字/保留字或自定义标识符
@@ -189,6 +201,12 @@ int rd_flex()
 
             // 设置类型与行号
             rd_lval.type.type = BasicType::TYPE_INT;
+            rd_lval.type.lineno = rd_line_no;
+        } else if (tokenKind == RDTokenType::T_FLOAT) {
+            // float关键字
+
+            // 设置类型与行号
+            rd_lval.type.type = BasicType::TYPE_FLOAT;
             rd_lval.type.lineno = rd_line_no;
         }
     } else {

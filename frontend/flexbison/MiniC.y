@@ -13,6 +13,7 @@
 
 #include "IntegerType.h"
 #include "FloatType.h"
+#include "Types/ArrayType.h"
 
 // LR分析失败时所调用函数的原型声明
 void yyerror(char * msg);
@@ -49,7 +50,7 @@ void yyerror(char * msg);
 
 // 分隔符 一词一类 不需要赋予语义属性
 %token T_SEMICOLON T_L_PAREN T_R_PAREN T_L_BRACE T_R_BRACE
-%token T_COMMA
+%token T_COMMA T_L_BRACKET T_R_BRACKET
 
 // 运算符
 %token T_ASSIGN T_SUB T_ADD
@@ -181,23 +182,91 @@ VarDeclExpr: BasicType VarDef {
 		// 创建类型节点
 		ast_node * type_node = create_type_node($1);
 
-		// 创建变量定义节点
-		ast_node * decl_node = create_contain_node(ast_operator_type::AST_OP_VAR_DECL, type_node, $2);
-		decl_node->type = type_node->type;
+		// 判断是否是数组声明节点
+		if ($2->node_type == ast_operator_type::AST_OP_ARRAY_DECL) {
+			// 如果是数组声明节点，需要设置类型
+			// 获取数组大小节点（第二个孩子）
+			ast_node* size_node = $2->sons[1];
+			
+			// 创建ArrayType
+			uint32_t arraySize = size_node->integer_val;
+			Type* elementType = type_node->type;
+			Type* arrayType = ArrayType::getNonConst(elementType, arraySize);
+			
+			// 将数组类型设置到节点
+			$2->type = arrayType;
+			
+			// 将类型节点添加为数组声明节点的第一个孩子
+			// 先创建一个新的类型节点
+			ast_node* array_type_node = ast_node::New(arrayType);
+			
+			// 保存现有的孩子节点
+			ast_node* name_node = $2->sons[0];
+			
+			// 清空现有的孩子
+			$2->sons.clear();
+			
+			// 按正确的顺序添加孩子：类型节点，名称节点，大小节点
+			$2->insert_son_node(array_type_node);
+			$2->insert_son_node(name_node);
+			$2->insert_son_node(size_node);
+			
+			// 创建变量声明语句，并加入第一个变量
+			$$ = create_var_decl_stmt_node($2);
+		} else {
+			// 普通变量处理，与之前相同
+			// 创建变量定义节点
+			ast_node * decl_node = create_contain_node(ast_operator_type::AST_OP_VAR_DECL, type_node, $2);
+			decl_node->type = type_node->type;
 
-		// 创建变量声明语句，并加入第一个变量
-		$$ = create_var_decl_stmt_node(decl_node);
+			// 创建变量声明语句，并加入第一个变量
+			$$ = create_var_decl_stmt_node(decl_node);
+		}
 	}
 	| VarDeclExpr T_COMMA VarDef {
 
-		// 创建类型节点，这里从VarDeclExpr获取类型，前面已经设置
-		ast_node * type_node = ast_node::New($1->type);
+		// 与第一种情况类似，分情况处理数组声明
+		if ($3->node_type == ast_operator_type::AST_OP_ARRAY_DECL) {
+			// 从VarDeclExpr获取类型
+			Type* elementType = $1->type;
+			
+			// 获取数组大小节点（第二个孩子）
+			ast_node* size_node = $3->sons[1];
+			
+			// 创建ArrayType
+			uint32_t arraySize = size_node->integer_val;
+			Type* arrayType = ArrayType::getNonConst(elementType, arraySize);
+			
+			// 将数组类型设置到节点
+			$3->type = arrayType;
+			
+			// 创建类型节点并添加为数组声明节点的第一个孩子
+			ast_node* array_type_node = ast_node::New(arrayType);
+			
+			// 保存现有的孩子节点
+			ast_node* name_node = $3->sons[0];
+			
+			// 清空现有的孩子
+			$3->sons.clear();
+			
+			// 按正确的顺序添加孩子：类型节点，名称节点，大小节点
+			$3->insert_son_node(array_type_node);
+			$3->insert_son_node(name_node);
+			$3->insert_son_node(size_node);
+			
+			// 插入到变量声明语句
+			$$ = $1->insert_son_node($3);
+		} else {
+			// 普通变量处理，与之前相同
+			// 创建类型节点，这里从VarDeclExpr获取类型，前面已经设置
+			ast_node * type_node = ast_node::New($1->type);
 
-		// 创建变量定义节点
-		ast_node * decl_node = create_contain_node(ast_operator_type::AST_OP_VAR_DECL, type_node, $3);
+			// 创建变量定义节点
+			ast_node * decl_node = create_contain_node(ast_operator_type::AST_OP_VAR_DECL, type_node, $3);
 
-		// 插入到变量声明语句
-		$$ = $1->insert_son_node(decl_node);
+			// 插入到变量声明语句
+			$$ = $1->insert_son_node(decl_node);
+		}
 	}
 	;
 
@@ -208,6 +277,24 @@ VarDef : T_ID {
 		$$ = ast_node::New(var_id_attr{$1.id, $1.lineno});
 
 		// 对于字符型字面量的字符串空间需要释放，因词法用到了strdup进行了字符串复制
+		free($1.id);
+	}
+	| T_ID T_L_BRACKET T_DIGIT T_R_BRACKET {
+		// 数组声明，例如: int a[5];
+
+		// 创建数组名节点
+		ast_node * name_node = ast_node::New(var_id_attr{$1.id, $1.lineno});
+
+		// 创建数组大小节点
+		ast_node * size_node = ast_node::New($3);
+
+		// 从VarDeclExpr获取类型节点，可能是在高层规则中传递的
+		// 这里无法直接访问类型节点，但在后续的处理中会正确设置
+
+		// 注意：这里还不能填入类型信息，将在VarDeclExpr规则中设置
+		$$ = create_contain_node(ast_operator_type::AST_OP_ARRAY_DECL, name_node, size_node);
+
+		// 释放字符串空间
 		free($1.id);
 	}
 	;
@@ -389,6 +476,21 @@ LVal : T_ID {
 		$$ = ast_node::New($1);
 
 		// 对于字符型字面量的字符串空间需要释放，因词法用到了strdup进行了字符串复制
+		free($1.id);
+	}
+	| T_ID T_L_BRACKET Expr T_R_BRACKET {
+		// 数组元素访问，例如: a[i]
+
+		// 创建数组名节点
+		ast_node * name_node = ast_node::New($1);
+
+		// 数组索引表达式节点
+		ast_node * index_node = $3;
+
+		// 使用专门的函数创建数组元素访问节点
+		$$ = create_array_subscript(name_node, index_node);
+
+		// 释放字符串空间
 		free($1.id);
 	}
 	;

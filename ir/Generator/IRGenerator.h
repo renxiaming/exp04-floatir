@@ -2,8 +2,8 @@
 /// @file IRGenerator.h
 /// @brief AST遍历产生线性IR的头文件
 /// @author zenglj (zenglj@live.com)
-/// @version 1.1
-/// @date 2024-11-23
+/// @version 1.2
+/// @date 2024-11-24
 ///
 /// @copyright Copyright (c) 2024
 ///
@@ -12,6 +12,7 @@
 /// <tr><th>Date       <th>Version <th>Author  <th>Description
 /// <tr><td>2024-09-29 <td>1.0     <td>zenglj  <td>新建
 /// <tr><td>2024-11-23 <td>1.1     <td>zenglj  <td>表达式版增强
+/// <tr><td>2024-11-24 <td>1.2     <td>zenglj  <td>增加数组支持
 /// </table>
 ///
 #pragma once
@@ -111,6 +112,16 @@ protected:
     /// @param node AST节点
     /// @return 翻译是否成功，true：成功，false：失败
     bool ir_variable_declare(ast_node * node);
+
+    /// @brief 数组声明节点翻译成线性中间IR
+    /// @param node AST节点
+    /// @return 翻译是否成功，true：成功，false：失败
+    bool ir_array_declare(ast_node * node);
+
+    /// @brief 数组元素访问节点翻译成线性中间IR
+    /// @param node AST节点
+    /// @return 翻译是否成功，true：成功，false：失败
+    bool ir_array_subscript(ast_node * node);
 
     /// @brief 未知节点类型的节点处理
     /// @param node AST节点

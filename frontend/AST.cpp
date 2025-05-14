@@ -2,8 +2,8 @@
 /// @file AST.cpp
 /// @brief 抽象语法树AST管理的实现
 /// @author zenglj (zenglj@live.com)
-/// @version 1.1
-/// @date 2024-11-23
+/// @version 1.2
+/// @date 2024-11-24
 ///
 /// @copyright Copyright (c) 2024
 ///
@@ -12,6 +12,7 @@
 /// <tr><th>Date       <th>Version <th>Author  <th>Description
 /// <tr><td>2024-11-21 <td>1.0     <td>zenglj  <td>新做
 /// <tr><td>2024-11-23 <td>1.1     <td>zenglj  <td>表达式版增强
+/// <tr><td>2024-11-24 <td>1.2     <td>zenglj  <td>增加数组支持
 /// </table>
 ///
 #include <cstdarg>
@@ -23,6 +24,7 @@
 #include "Types/IntegerType.h"
 #include "Types/FloatType.h"
 #include "Types/VoidType.h"
+#include "Types/ArrayType.h"
 
 /* 整个AST的根节点 */
 ast_node * ast_root = nullptr;
@@ -307,15 +309,28 @@ Type * typeAttr2Type(type_attr & attr)
 }
 
 /// @brief 创建类型节点
-/// @param type 类型信息
+/// @param attr 类型属性
 /// @return 创建的节点
 ast_node * create_type_node(type_attr & attr)
 {
-    Type * type = typeAttr2Type(attr);
+    // 根据attr.type创建对应的Type*
+    Type * type = nullptr;
+    switch (attr.type) {
+        case BasicType::TYPE_INT:
+            type = IntegerType::getTypeInt();
+            break;
+        case BasicType::TYPE_FLOAT:
+            type = FloatType::getType();
+            break;
+        default:
+            // 默认使用整型
+            type = IntegerType::getTypeInt();
+            break;
+    }
 
-    ast_node * type_node = ast_node::New(type);
-
-    return type_node;
+    ast_node * node = ast_node::New(type);
+    node->line_no = attr.lineno;
+    return node;
 }
 
 /// @brief 创建函数调用的节点
@@ -424,4 +439,64 @@ ast_node * add_var_decl_node(ast_node * stmt_node, var_id_attr & id)
     (void) stmt_node->insert_son_node(decl_node);
 
     return stmt_node;
+}
+
+/// @brief 创建数组声明节点
+/// @param type_node 数组元素类型节点
+/// @param id_node 数组标识符节点
+/// @param size_node 数组大小节点（整数字面量）
+/// @return 创建的节点
+ast_node * create_array_decl(ast_node * type_node, ast_node * id_node, ast_node * size_node)
+{
+    ast_node * array_decl_node =
+        create_contain_node(ast_operator_type::AST_OP_ARRAY_DECL, type_node, id_node, size_node);
+    return array_decl_node;
+}
+
+/// @brief 创建数组元素访问节点
+/// @param array_node 数组标识符节点
+/// @param index_node 数组索引表达式节点
+/// @return 创建的节点
+ast_node * create_array_subscript(ast_node * array_node, ast_node * index_node)
+{
+    ast_node * array_subscript_node =
+        create_contain_node(ast_operator_type::AST_OP_ARRAY_SUBSCRIPT, array_node, index_node);
+    return array_subscript_node;
+}
+
+/// @brief 创建数组类型的节点
+/// @param attr 数组属性
+/// @return 创建的节点
+ast_node * create_array_type(array_attr & attr)
+{
+    // 根据数组元素类型获取对应的Type*
+    Type * elementType = nullptr;
+    switch (attr.elementType) {
+        case BasicType::TYPE_INT:
+            elementType = IntegerType::getTypeInt();
+            break;
+        case BasicType::TYPE_FLOAT:
+            elementType = FloatType::getType();
+            break;
+        default:
+            // 默认使用整型
+            elementType = IntegerType::getTypeInt();
+            break;
+    }
+
+    // 使用getNonConst方法获取非const的ArrayType指针
+    Type * arrayType = ArrayType::getNonConst(elementType, attr.size);
+
+    ast_node * node = ast_node::New(arrayType);
+    node->line_no = attr.lineno;
+    return node;
+}
+
+/// @brief 创建整数字面量节点
+/// @param attr 整数字面量属性
+/// @return 创建的节点
+ast_node * create_digit_int_node(digit_int_attr & attr)
+{
+    ast_node * node = ast_node::New(attr);
+    return node;
 }

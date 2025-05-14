@@ -2,8 +2,8 @@
 /// @file IRGenerator.cpp
 /// @brief AST遍历产生线性IR的源文件
 /// @author zenglj (zenglj@live.com)
-/// @version 1.1
-/// @date 2024-11-23
+/// @version 1.2
+/// @date 2024-11-24
 ///
 /// @copyright Copyright (c) 2024
 ///
@@ -12,6 +12,7 @@
 /// <tr><th>Date       <th>Version <th>Author  <th>Description
 /// <tr><td>2024-09-29 <td>1.0     <td>zenglj  <td>新建
 /// <tr><td>2024-11-23 <td>1.1     <td>zenglj  <td>表达式版增强
+/// <tr><td>2024-11-24 <td>1.2     <td>zenglj  <td>增加数组支持
 /// </table>
 ///
 #include <cstdint>
@@ -34,6 +35,8 @@
 #include "UnaryInstruction.h"
 #include "MoveInstruction.h"
 #include "GotoInstruction.h"
+#include "ArrayType.h"
+#include "GetElementPtrInstruction.h"
 
 /// @brief 构造函数
 /// @param _root AST的根
@@ -64,6 +67,10 @@ IRGenerator::IRGenerator(ast_node * _root, Module * _module) : root(_root), modu
     /* 变量定义语句 */
     ast2ir_handlers[ast_operator_type::AST_OP_DECL_STMT] = &IRGenerator::ir_declare_statment;
     ast2ir_handlers[ast_operator_type::AST_OP_VAR_DECL] = &IRGenerator::ir_variable_declare;
+
+    /* 数组定义和访问 */
+    ast2ir_handlers[ast_operator_type::AST_OP_ARRAY_DECL] = &IRGenerator::ir_array_declare;
+    ast2ir_handlers[ast_operator_type::AST_OP_ARRAY_SUBSCRIPT] = &IRGenerator::ir_array_subscript;
 
     /* 语句块 */
     ast2ir_handlers[ast_operator_type::AST_OP_BLOCK] = &IRGenerator::ir_block;
@@ -707,6 +714,101 @@ bool IRGenerator::ir_variable_declare(ast_node * node)
     // TODO 这里可强化类型等检查
 
     node->val = module->newVarValue(node->sons[0]->type, node->sons[1]->name);
+
+    return true;
+}
+
+/// @brief 数组声明节点翻译成线性中间IR
+/// @param node AST节点
+/// @return 翻译是否成功，true：成功，false：失败
+bool IRGenerator::ir_array_declare(ast_node * node)
+{
+    // 有三个孩子：
+    // 第一个是类型节点
+    // 第二个是数组名节点
+    // 第三个是数组大小节点（整数字面量）
+
+    Type * elementType = node->sons[0]->type;
+    std::string arrayName = node->sons[1]->name;
+    uint32_t arraySize = node->sons[2]->integer_val;
+
+    // 使用getNonConst方法获取非const的ArrayType指针
+    Type * arrayType = ArrayType::getNonConst(elementType, arraySize);
+
+    // 创建数组变量并添加到符号表
+    node->val = module->newVarValue(arrayType, arrayName);
+
+    return true;
+}
+
+/// @brief 数组元素访问节点翻译成线性中间IR
+/// @param node AST节点
+/// @return 翻译是否成功，true：成功，false：失败
+bool IRGenerator::ir_array_subscript(ast_node * node)
+{
+    // 有两个孩子：
+    // 第一个是数组名节点
+    // 第二个是索引表达式节点
+
+    // 处理数组名 - 从符号表获取数组变量
+    ast_node * arrayNode = ir_visit_ast_node(node->sons[0]);
+    if (!arrayNode) {
+        minic_log(LOG_ERROR, "第%lld行: 未定义的数组", (long long) node->line_no);
+        return false;
+    }
+
+    Value * arrayValue = arrayNode->val;
+
+    // 验证是否是数组类型
+    Type * valueType = arrayValue->getType();
+    if (!valueType->isArrayType()) {
+        minic_log(LOG_ERROR, "第%lld行: 变量不是数组类型", (long long) node->line_no);
+        return false;
+    }
+
+    // 处理索引表达式
+    ast_node * indexNode = ir_visit_ast_node(node->sons[1]);
+    if (!indexNode) {
+        return false;
+    }
+
+    Value * indexValue = indexNode->val;
+
+    // 验证索引是否是整型
+    if (!indexValue->getType()->isIntegerType()) {
+        minic_log(LOG_ERROR, "第%lld行: 数组索引必须是整数类型", (long long) node->line_no);
+        return false;
+    }
+
+    // 创建数组元素访问指令
+    const ArrayType * arrayType = dynamic_cast<const ArrayType *>(valueType);
+    // 获取元素类型的非const副本
+    const Type * constElementType = arrayType->getElementType();
+    Type * elementType = nullptr;
+
+    if (constElementType->isIntegerType()) {
+        elementType = IntegerType::getTypeInt();
+    } else if (constElementType->isFloatType()) {
+        elementType = FloatType::getType();
+    } else {
+        // 如果是其他类型，使用适当的处理方法
+        elementType = IntegerType::getTypeInt(); // 默认使用整型
+    }
+
+    // 使用GEP (GetElementPtr)指令来获取数组元素地址
+    GetElementPtrInstruction * gepInst =
+        new GetElementPtrInstruction(module->getCurrentFunction(), arrayValue, indexValue, elementType);
+
+    // 添加指令到节点的指令块中
+    node->blockInsts.addInst(arrayNode->blockInsts);
+    node->blockInsts.addInst(indexNode->blockInsts);
+
+    // 将GetElementPtrInstruction添加到指令块中，需要明确使用Instruction*类型
+    Instruction * inst = static_cast<Instruction *>(gepInst);
+    node->blockInsts.addInst(inst);
+
+    // 设置节点的值为GEP指令的结果
+    node->val = gepInst;
 
     return true;
 }

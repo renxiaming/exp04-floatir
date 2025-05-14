@@ -11,6 +11,7 @@
 /// <table>
 /// <tr><th>Date       <th>Version <th>Author  <th>Description
 /// <tr><td>2024-11-21 <td>1.0     <td>zenglj  <td>新做
+/// <tr><td>2024-11-24 <td>1.1     <td>zenglj  <td>增加数组支持
 /// </table>
 ///
 #pragma once
@@ -25,6 +26,7 @@ enum class BasicType : std::int8_t {
     TYPE_VOID,  // void型，仅用于函数返回值
     TYPE_INT,   // 整型
     TYPE_FLOAT, // Float类型
+    TYPE_ARRAY, // 数组类型
     TYPE_MAX,   // 其它类型，未知类型
 };
 
@@ -59,3 +61,12 @@ typedef struct type_attr {
     BasicType type; // 类型
     int64_t lineno; // 行号
 } type_attr;
+
+///
+/// @brief 数组属性
+///
+typedef struct array_attr {
+    BasicType elementType; // 数组元素类型
+    uint32_t size;         // 数组大小
+    int64_t lineno;        // 行号
+} array_attr;

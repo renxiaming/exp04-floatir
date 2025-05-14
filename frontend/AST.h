@@ -12,6 +12,7 @@
 /// <tr><th>Date       <th>Version <th>Author  <th>Description
 /// <tr><td>2024-11-21 <td>1.0     <td>zenglj  <td>新做
 /// <tr><td>2024-11-23 <td>1.1     <td>zenglj  <td>表达式版增强
+/// <tr><td>2024-11-24 <td>1.2     <td>zenglj  <td>增加数组支持
 /// </table>
 ///
 #pragma once
@@ -88,6 +89,12 @@ enum class ast_operator_type : int {
 
     /// @brief 二元运算符*
     AST_OP_SUB, //
+
+    /// @brief 数组声明，带有大小信息
+    AST_OP_ARRAY_DECL,
+
+    /// @brief 数组元素访问，表示a[idx]操作
+    AST_OP_ARRAY_SUBSCRIPT,
 
     // TODO 抽象语法树其它内部节点运算符追加
 
@@ -288,3 +295,31 @@ ast_node * create_var_decl_stmt_node(type_attr & type, var_id_attr & id);
 /// @return ast_node* 变量声明语句节点
 ///
 ast_node * add_var_decl_node(ast_node * stmt_node, var_id_attr & id);
+
+/// @brief 创建数组声明节点
+/// @param type_node 数组元素类型节点
+/// @param id_node 数组标识符节点
+/// @param size_node 数组大小节点（整数字面量）
+/// @return 创建的节点
+ast_node * create_array_decl(ast_node * type_node, ast_node * id_node, ast_node * size_node);
+
+/// @brief 创建数组元素访问节点
+/// @param array_node 数组标识符节点
+/// @param index_node 数组索引表达式节点
+/// @return 创建的节点
+ast_node * create_array_subscript(ast_node * array_node, ast_node * index_node);
+
+/// @brief 创建数组类型的节点
+/// @param attr 数组属性
+/// @return 创建的节点
+ast_node * create_array_type(array_attr & attr);
+
+/// @brief 创建整数字面量节点
+/// @param attr 整数字面量属性
+/// @return 创建的节点
+ast_node * create_digit_int_node(digit_int_attr & attr);
+
+/// @brief 创建类型节点
+/// @param attr 类型属性
+/// @return 创建的节点
+ast_node * create_type_node(type_attr & attr);
